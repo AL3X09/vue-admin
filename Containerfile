@@ -15,6 +15,10 @@ WORKDIR /app
 # Clonar el repositorio (igual que el backend)
 RUN git clone https://github.com/AL3X09/vue-admin.git .
 
+#
+# Copia tu .env local al contenedor antes del build
+COPY .env .env
+
 # Instalar dependencias
 RUN npm ci
 
