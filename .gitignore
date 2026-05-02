@@ -30,3 +30,7 @@ coverage
 *.tsbuildinfo
 # Local virtual environment
 .env
+# Windows thumbnail cache files
+Thumbs.db
+# Windows shortcut files
+*.Zone.Identifier
