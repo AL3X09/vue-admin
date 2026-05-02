@@ -18,7 +18,7 @@
  * 5. Redirige al login
  * 
  * ENDPOINTS DEL BACKEND:
- * Base URL: http://127.0.0.1:8000
+ * Base URL: Configurable via VITE_API_BASE_URL (default: http://127.0.0.1:8000)
  * 
  * MANEJO DE TOKENS:
  * - El token se guarda en localStorage con la clave 'token'
@@ -37,13 +37,13 @@ import { useAuthStore } from './auth.store'
  * Instancia de Axios configurada para la API
  * 
  * CONFIGURACIÓN:
- * - baseURL: URL base del backend FastAPI
- * - timeout: Tiempo máximo de espera (10 segundos)
+ * - baseURL: URL base del backend FastAPI (desde variables de entorno)
+ * - timeout: Tiempo máximo de espera (configurable)
  * - headers: Headers por defecto (Content-Type: application/json)
  */
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
-  timeout: 10000,
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000',
+  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
   headers: {
     'Content-Type': 'application/json',
   },
