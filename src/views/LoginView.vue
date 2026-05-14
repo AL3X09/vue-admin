@@ -109,6 +109,11 @@ const goToRegister = () => {
   <LayoutGuest>
     <SectionFullScreen v-slot="{ cardClass }" bg="greenSoft">
       <CardBox :class="cardClass" is-form @submit.prevent="handleSubmit">
+
+        <div class="flex justify-center">
+          <img src="/logo_fontireservado.png" alt="Login Illustration" class="w-60 h-auto" />
+        </div>
+                
         <!-- Título -->
         <div class="text-center mb-6">
           <h1 class="text-2xl font-bold">Iniciar Sesión</h1>
@@ -153,13 +158,14 @@ const goToRegister = () => {
         </FormField>
 
         <!-- Checkbox Recordarme -->
-        <FormCheckRadio
+        <!--  <FormCheckRadio
           v-model="remember"
           name="remember"
           label="Recordarme en este dispositivo"
           :input-value="true"
           :disabled="isLoading"
         />
+         -->
 
         <!-- Botones de acción -->
         <template #footer>
@@ -170,26 +176,13 @@ const goToRegister = () => {
               label="Ingresar" 
               :disabled="isLoading"
             />
-            <BaseButton 
-              color="info" 
-              outline 
-              label="Registrarse" 
-              @click="goToRegister"
-              :disabled="isLoading"
-            />
+            
           </BaseButtons>
 
           <!-- Información adicional -->
           <div class="text-center mt-4 text-gray-600 dark:text-gray-300">
             <p class="text-sm">
-              ¿No tienes una cuenta? 
-              <a 
-                href="#" 
-                @click.prevent="goToRegister" 
-                class="font-bold underline hover:text-gray-800 dark:hover:text-gray-100"
-              >
-                Regístrate aquí
-              </a>
+              
             </p>
           </div>
         </template>

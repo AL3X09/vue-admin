@@ -568,7 +568,7 @@ const formatCurrency = (value) => {
                       title="Ver detalles"
                     />
                     <BaseButton
-                      v-if="reservation.status === 'ACTIVE'"
+                      v-if="(reservation.status).toUpperCase() === 'NO'"
                       :icon="mdiCheck"
                       color="success"
                       small
@@ -576,7 +576,7 @@ const formatCurrency = (value) => {
                       title="Completar"
                     />
                     <BaseButton
-                      v-if="reservation.status === 'ACTIVE'"
+                      v-if="(reservation.status).toUpperCase() === 'ACTIVA'"
                       :icon="mdiCancel"
                       color="danger"
                       small
@@ -589,8 +589,9 @@ const formatCurrency = (value) => {
             </tbody>
           </table>
           
+            <!-- Paginacion -->
           <div class="px-6 py-4 border-t border-gray-200">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div class="text-sm text-gray-700">
                 Mostrando {{ parkingReservationsStore.pagination.offset + 1 }} 
                 a {{ Math.min(parkingReservationsStore.pagination.offset + parkingReservationsStore.pagination.limit, filteredReservations.length) }} 

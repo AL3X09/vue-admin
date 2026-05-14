@@ -205,36 +205,12 @@ watch(() => route.params.id, loadUser)
           <FormControl v-model="userForm.username" :icon="mdiAccount" required />
         </FormField>
 
-        <FormField label="Correo Electrónico">
-          <FormControl v-model="userForm.email" type="email" :icon="mdiEmail" required />
-        </FormField>
-
         <FormField v-if="!isEditing" label="Contraseña" help="Mínimo 8 caracteres">
           <FormControl v-model="userForm.password" type="password" :icon="mdiLock" required />
         </FormField>
 
-        <FormField label="Nombre">
-          <FormControl v-model="userForm.first_name" :icon="mdiAccount" />
-        </FormField>
-
-        <FormField label="Apellido">
-          <FormControl v-model="userForm.last_name" :icon="mdiAccount" />
-        </FormField>
-
         <FormField label="Rol del Usuario">
           <FormControl v-model="userForm.role" :options="selectRoleOptions" :icon="mdiShieldAccount" required />
-        </FormField>
-
-        <FormField label="Teléfono">
-          <FormControl v-model="userForm.phone" type="tel" :icon="mdiPhone" />
-        </FormField>
-
-        <FormField label="Tipo de Documento">
-          <FormControl v-model="userForm.document_type" :options="selectDocumentType" :icon="mdiCardAccountDetails" />
-        </FormField>
-
-        <FormField label="Número de Documento">
-          <FormControl v-model="userForm.document_number" :icon="mdiCardAccountDetails" />
         </FormField>
 
         <template #footer>

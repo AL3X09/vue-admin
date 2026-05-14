@@ -90,7 +90,7 @@ onUnmounted(() => {
               :disabled="isProcessing"
               :class="{ 'opacity-25': isProcessing }"
             />
-            <BaseButton v-if="hasCancel" label="Cancel" :color="button" outline @click="cancel" />
+            <BaseButton v-if="hasCancel" label="Cancelar" :color="button" outline @click="cancel" />
           </BaseButtons>
         </CardBoxComponentFooter>
       </template>

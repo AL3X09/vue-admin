@@ -38,6 +38,7 @@ const getPermissionFromTitle = (title) => {
   let permission = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   // Eliminar caracteres que no sean letras o números
   permission = permission.replace(/[^a-z0-9]/g, '')
+
   //console.log(`Permiso generado para "${title}": ${permission}:read`)
   return `${permission}:view`
 }
@@ -48,13 +49,14 @@ const getPermissionFromTitle = (title) => {
  * Los superadmin ven todos los módulos.
  */
 const filteredMenuItems = computed(() => {
-  const userPermissions = authStore.user?.permissions || []
-  //const isSuperAdmin = authStore.user?.is_superadmin || false
+  const userPermissions = authStore.user?.role.permissions || []
+  // ✅ Extraer solo los códigos del array de objetos
+  const permissionCodes = userPermissions.map(p => p.code)
   return MenuItems.filter(item => {
     
     const permission = getPermissionFromTitle(item.title) // Usar title en lugar de id para generar el permiso
     
-    return userPermissions.includes(permission)
+    return permissionCodes.includes(permission)
   })
 })
 

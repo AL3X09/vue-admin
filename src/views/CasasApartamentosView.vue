@@ -523,7 +523,7 @@ const changePage = (page) => {
           
           <!-- Paginación -->
           <div class="px-6 py-4 border-t border-gray-200">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div class="text-sm text-gray-500">
                 Mostrando {{ ((casasApartamentosStore.pagination.currentPage - 1) * casasApartamentosStore.pagination.pageSize) + 1 }} 
                 a {{ Math.min(casasApartamentosStore.pagination.currentPage * casasApartamentosStore.pagination.pageSize, filteredCasasApartamentos.length) }} 

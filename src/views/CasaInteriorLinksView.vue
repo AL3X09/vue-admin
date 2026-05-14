@@ -685,7 +685,7 @@ const clearMessages = () => {
           
           <!-- Paginación -->
           <div class="px-6 py-4 border-t border-gray-200">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div class="text-sm text-gray-700">
                 Mostrando {{ (linksStore.pagination.currentPage - 1) * linksStore.pagination.pageSize + 1 }} 
                 a {{ Math.min(linksStore.pagination.currentPage * linksStore.pagination.pageSize, filteredLinks.length) }} 

@@ -61,8 +61,11 @@ import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import NotificationBar from '@/components/NotificationBar.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import CardBoxModal from '@/components/CardBoxModal.vue'
 import { useUsersStore } from '@/stores/users.store'
 import { usePermissionsStore } from '@/stores/permissions.store'
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 // ============================================
 // STORES
@@ -75,8 +78,10 @@ const permissionsStore = usePermissionsStore()
 // ============================================
 
 // Modal de confirmación de eliminación
-const showDeleteModal = ref(false)
-const userToDelete = ref(null)
+//const showDeleteModal = ref(false)
+// Modal de confirmación de desactivación
+const showDeactivateModal = ref(false)
+const userToDeactivate = ref(null)
 
 // Modal de permisos
 const showPermissionsModal = ref(false)
@@ -155,34 +160,55 @@ watch([searchQuery, selectedRole, selectedStatus], () => {
 // FUNCIONES - ACCIONES DE USUARIO / FILTROS
 // ============================================
 
+/**
+ * Abre el modal de confirmación de desactivación
+ * @param {Object} person - Persona a desactivar
+ */
+const openDeactivateModal = (user) => {
+  userToDeactivate.value = user
+  showDeactivateModal.value = true
+}
+
+/**
+ * Cierra el modal de desactivación
+ */
+const closeDeactivateModal = () => {
+  showDeactivateModal.value = false
+  userToDeactivate.value = null
+}
 
 /**
  * Abre el modal de confirmación de eliminación
  * @param {Object} user - Usuario a eliminar
- */
+ *
 const openDeleteModal = (user) => {
   userToDelete.value = user
   showDeleteModal.value = true
 }
+*/
 
 /**
  * Cierra el modal de eliminación
- */
+ *
 const closeDeleteModal = () => {
   showDeleteModal.value = false
   userToDelete.value = null
 }
+*/
 
 /**
- * Confirma la eliminación del usuario
+ * Confirma la desactivación del usuario
  */
 const confirmDelete = async () => {
   try {
-    await usersStore.deleteUser(userToDelete.value.id)
-    closeDeleteModal()
+    console.log('Desactivando usuario:', userToDeactivate.value.id)
+    await usersStore.updateUser(userToDeactivate.value.id, {
+      is_active: false
+    })
+    closeDeactivateModal()
   } catch (error) {
-    console.error('Error al eliminar usuario:', error)
-    alert('Error al eliminar el usuario. Por favor, intenta nuevamente.')
+    console.error('Error al desactivar usuario:', error)
+    alert('Error al desactivar el usuario. Por favor, intenta nuevamente.')
   }
 }
 
@@ -315,6 +341,20 @@ const refreshUsers = async () => {
 const changePage = (page) => {
   usersStore.setPage(page)
 }
+
+const notify = () => {
+ toast.info("Oprima aquí si esta Seguro de desactivar el usuario?", {
+  closeButton: false,
+    // Prevent the toast from closing automatically
+    autoClose: false, 
+    // Add custom buttons or logic via a custom component (optional)
+    // or handle specific click events on the toast itself
+    onClick: () => {
+      console.log("Confirmed!");
+      toast.clearAll(); // Manually clear after confirmation
+    }
+  });
+};
 </script>
 
 <template>
@@ -447,19 +487,13 @@ const changePage = (page) => {
                   Usuario
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contacto
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Documento
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Rol
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Estado
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Último Acceso
+                  Cambiar contraseña
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
@@ -489,67 +523,25 @@ const changePage = (page) => {
                   </div>
                 </td>
                 
-                <!-- Contacto -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900 flex items-center gap-1">
-                    <span :icon="mdiEmail" class="w-4 h-4" />
-                    {{ user.email }}
-                  </div>
-                  <div v-if="user.phone" class="text-sm text-gray-500 flex items-center gap-1">
-                    <span :icon="mdiPhone" class="w-4 h-4" />
-                    {{ user.phone }}
-                  </div>
-                </td>
-                
-                <!-- Documento -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div v-if="user.document_type && user.document_number" class="text-sm text-gray-900">
-                    <div class="flex items-center gap-1">
-                      <span :icon="mdiCardAccountDetails" class="w-4 h-4" />
-                      {{ user.document_type }}
-                    </div>
-                    <div class="text-sm text-gray-500">
-                      {{ user.document_number }}
-                    </div>
-                  </div>
-                  <div v-else class="text-sm text-gray-400">
-                    No especificado
-                  </div>
-                </td>
-                
                 <!-- Rol -->
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <select
-                    v-if="isAdmin"
-                    :value="user.role"
-                    @change="changeUserRole(user, $event.target.value)"
-                    class="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option v-for="role in usersStore.availableRoles" :key="role.id" :value="role.id">
-                      {{ role.name }}
-                    </option>
-                  </select>
-                  <span v-else class="text-sm text-gray-900">
-                    {{ user.roleName }}
+                  <span class="text-sm text-gray-900">
+                    {{ user.role.name }}
                   </span>
                 </td>
                 
                 <!-- Estado -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="user.statusClass" class="text-sm font-medium">
-                    {{ user.statusText }}
+                    {{ user.is_active ? 'Activo' : 'Inactivo' }}
                   </span>
                 </td>
                 
-                <!-- Último Acceso -->
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div v-if="user.last_login" class="flex items-center gap-1">
-                    <span :icon="mdiClockOutline" class="w-4 h-4" />
-                    {{ new Date(user.last_login).toLocaleDateString('es-CO') }}
-                  </div>
-                  <div v-else class="text-gray-400">
-                    Nunca
-                  </div>
+                <!-- Cambio de contraseña -->
+                 <td class="px-6 py-4 whitespace-nowrap">
+                  <span :class="user.last_login" class="text-sm font-medium">
+                    {{ user.must_change_password ? 'Nunca' : 'Cambiada' }}
+                  </span>
                 </td>
                 
                 <!-- Acciones -->
@@ -564,32 +556,15 @@ const changePage = (page) => {
                       @click="$router.push({ name: 'user-edit', params: { id: user.id } })"
                     />
                     
-                    <!-- Botón Permisos -->
-                    <BaseButton
-                      v-if="isAdmin"
-                      :icon="mdiAccountKey"
-                      color="warning"
-                      small
-                      @click="openPermissionsModal(user)"
-                    />
-                    
                     <!-- Botón Activar/Desactivar -->
                     <BaseButton
                       v-if="isAdmin"
                       :icon="user.is_active ? mdiAccountOff : mdiAccountCheck"
                       :color="user.is_active ? 'danger' : 'success'"
                       small
-                      @click="toggleUserStatus(user)"
+                      @click="openDeactivateModal(user)"
                     />
                     
-                    <!-- Botón Eliminar -->
-                    <BaseButton
-                      v-if="isAdmin"
-                      :icon="mdiDelete"
-                      color="danger"
-                      small
-                      @click="openDeleteModal(user)"
-                    />
                   </div>
                 </td>
               </tr>
@@ -603,7 +578,7 @@ const changePage = (page) => {
 
         <!-- Paginación -->
         <div v-if="paginatedUsers.length > 0" class="px-6 py-4 border-t border-gray-200">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div class="text-sm text-gray-500">
               Mostrando {{ (usersStore.pagination.currentPage - 1) * usersStore.pagination.pageSize + 1 }} 
               a {{ Math.min(usersStore.pagination.currentPage * usersStore.pagination.pageSize, filteredUsers.length) }} 
@@ -685,62 +660,28 @@ const changePage = (page) => {
         </div>
       </div>
 
-      <!-- ========================================
-           MODAL DE GESTIÓN DE PERMISOS
+
+       <!-- ========================================
+           MODAL DE CONFIRMACIÓN DE DESACTIVACIÓN
            ======================================== -->
-      <div v-if="showPermissionsModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/40">
-        <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-left sm:block sm:p-0">
-          <!-- Overlay -->
-          <div class="fixed inset-0 transition-opacity" @click="closePermissionsModal">
-            <div class="absolute inset-0 bg-gray-500 opacity-50"></div>
-          </div>
-          
-          <!-- Modal -->
-          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-            <CardBox isModal>
-              <SectionTitleLineWithButton :icon="mdiAccountKey" :title="`Gestionar Permisos - ${selectedUserForPermissions?.username}`" main />
-              
-              <div class="space-y-4">
-                <div 
-                  v-for="permission in permissionsStore.availablePermissions" 
-                  :key="permission.id"
-                  class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
-                >
-                  <div class="flex items-center">
-                    <input
-                      type="checkbox"
-                      :id="`permission-${permission.id}`"
-                      :checked="isPermissionSelected(permission.id)"
-                      @change="togglePermission(permission.id)"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label :for="`permission-${permission.id}`" class="ml-3">
-                      <div class="text-sm font-medium text-gray-900">{{ permission.name }}</div>
-                      <div class="text-sm text-gray-500">{{ permission.description }}</div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              
-              <template #footer>
-                <BaseButtons>
-                  <BaseButton
-                    label="Guardar Permisos"
-                    color="info"
-                    @click="savePermissions"
-                  />
-                  <BaseButton
-                    label="Cancelar"
-                    color="info"
-                    outline
-                    @click="closePermissionsModal"
-                  />
-                </BaseButtons>
-              </template>
-            </CardBox>
-          </div>
+      <CardBoxModal
+        v-model="showDeactivateModal"
+        title="Desactivar Usuario"
+        button="danger"
+        buttonLabel="Desactivar"
+        :hasCancel="true"
+        :isProcessing="usersStore.isLoading"
+        @confirm="confirmDelete"
+        @cancel="closeDeactivateModal"
+      >
+        <div class="py-2">
+          <p class="text-sm text-gray-500">
+            ¿Está seguro de que desea desactivar el usuario
+            <strong>{{ userToDeactivate?.username }}</strong>?
+            Esta acción no se puede deshacer fácilmente.
+          </p>
         </div>
-      </div>
+      </CardBoxModal>
     </SectionMain>
   </LayoutAuthenticated>
 </template>

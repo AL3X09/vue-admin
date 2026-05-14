@@ -526,6 +526,45 @@ const savePerson = async () => {
       
       // Obtener el ID del usuario creado para asociarlo a la persona
       usuarioId = newUser.id
+      personForm.value.usuario_id = newUser.id
+      console.log('✅ Usuario creado con ID:', usuarioId)
+    }
+    
+    // ============================================================
+    // CASO 2b: Crear nuevo usuario + Editar persona
+    // (Primero usuario, luego persona actualizada)
+    // ============================================================
+    if (createUserOption.value && userCreationMode.value === 'new' && isEditing.value) {
+      console.log('🔵 CASO 2b: Crear nuevo usuario -> luego editar persona')
+      
+      // Validar que el username y password estén completos
+      if (!userForm.value.username || !userForm.value.password) {
+        personsStore.error = 'Para crear un usuario, debe completar nombre de usuario y contraseña.'
+        personsStore.successMessage = null
+        console.log('🔴 Error: username o password vacíos')
+        return
+      }
+      
+      // Validar que se haya seleccionado un rol (obligatorio para crear usuario)
+      if (!userForm.value.role_id) {
+        personsStore.error = 'Debe seleccionar un rol para el usuario.'
+        personsStore.successMessage = null
+        console.log('🔴 Error: role_id vacío')
+        return
+      }
+      
+      console.log('🔵 Creando usuario con role_id:', userForm.value.role_id, 'username:', userForm.value.username)
+      
+      // Crear el usuario PRIMERO
+      const newUser = await usersStore.createUser({
+        username: userForm.value.username,
+        password: userForm.value.password,
+        role_id: Number(userForm.value.role_id),
+      })
+      
+      // Obtener el ID del usuario creado para asociarlo a la persona
+      usuarioId = newUser.id
+      personForm.value.usuario_id = newUser.id
       console.log('✅ Usuario creado con ID:', usuarioId)
     }
     
@@ -535,6 +574,24 @@ const savePerson = async () => {
     // ============================================================
     if (createUserOption.value && userCreationMode.value === 'existing' && !isEditing.value) {
       console.log('🔵 CASO 3: Asignar usuario existente -> crear persona')
+      
+      // Validar que se haya seleccionado un usuario
+      if (!personForm.value.usuario_id) {
+        personsStore.error = 'Debe seleccionar un usuario existente para asignar.'
+        personsStore.successMessage = null
+        return
+      }
+      
+      // Usar el usuario_id seleccionado
+      usuarioId = personForm.value.usuario_id
+      console.log('🔵 Asignando usuario existente con ID:', usuarioId)
+    }
+    
+    // ============================================================
+    // CASO 3b: Asignar usuario existente a persona existente (edición)
+    // ============================================================
+    if (createUserOption.value && userCreationMode.value === 'existing' && isEditing.value) {
+      console.log('🔵 CASO 3b: Asignar usuario existente -> editar persona')
       
       // Validar que se haya seleccionado un usuario
       if (!personForm.value.usuario_id) {
@@ -591,8 +648,8 @@ const savePerson = async () => {
     // Recargar lista de personas
     await personsStore.fetchPersons()
     
-    // Recargar usuarios si se creó un nuevo usuario (Caso 2)
-    if (createUserOption.value && userCreationMode.value === 'new' && !isEditing.value) {
+    // Recargar usuarios si se creó un nuevo usuario (Caso 2 o 2b)
+    if (createUserOption.value && userCreationMode.value === 'new') {
       await usersStore.fetchUsers()
     }
     

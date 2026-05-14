@@ -130,15 +130,6 @@ const routes = [
   },
   {
     meta: {
-      title: 'Gestión de Personas (Legacy)',
-      requiresAuth: true,
-    },
-    path: '/persons-legacy',
-    name: 'persons-legacy',
-    component: () => import('@/views/PersonsView.vue'),
-  },
-  {
-    meta: {
       title: 'Gestión de Usuarios',
       requiresAuth: true,
     },

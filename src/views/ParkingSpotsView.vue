@@ -716,7 +716,7 @@ const getVehicleTypeLabel = (typeId) => {
             
             <!-- Paginacion -->
             <div class="px-6 py-4 border-t border-gray-200">
-              <div class="flex items-center justify-between">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div class="text-sm text-gray-700">
                   Mostrando {{ parkingSpotsStore.pagination.offset + 1 }} 
                   a {{ Math.min(parkingSpotsStore.pagination.offset + parkingSpotsStore.pagination.limit, filteredSpots.length) }} 

@@ -635,7 +635,7 @@ const getStatusLabel = (status) => {
           
           <!-- Paginación -->
           <div class="px-6 py-4 border-t border-gray-200">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div class="text-sm text-gray-500">
                 Mostrando {{ parkingAssignmentsStore.pagination.offset + 1 }} 
                 a {{ Math.min(parkingAssignmentsStore.pagination.offset + parkingAssignmentsStore.pagination.limit, parkingAssignmentsStore.filteredAssignments.length) }} 

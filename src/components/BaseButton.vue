@@ -66,9 +66,15 @@ const componentClass = computed(() => {
     getButtonColor(props.color, props.outline, !props.disabled, props.active),
   ]
 
+  const pad = props.small
+    ? ['text-sm', 'px-1', 'sm:px-2', 'md:px-3']
+    : ['py-2', 'px-3', 'sm:px-4', 'md:px-5', 'lg:px-6']
+
+
   if (!props.label && props.icon) {
     base.push('p-1')
   } else if (props.small) {
+    //base.push(pad)
     base.push('text-sm', props.roundedFull ? 'px-3 py-1' : 'p-1')
   } else {
     base.push('py-2', props.roundedFull ? 'px-6' : 'px-3')
