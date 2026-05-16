@@ -17,7 +17,7 @@ podman pod create \
 
 # 4. Ejecutar contenedor
 podman run -d \
-  --name vue-admin-app \
+  --name front-vue-admin-app \
   --network app-network \
   --restart unless-stopped \
   -p 80:8001 \

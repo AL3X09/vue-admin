@@ -182,7 +182,7 @@ const goToRegister = () => {
           <!-- Información adicional -->
           <div class="text-center mt-4 text-gray-600 dark:text-gray-300">
             <p class="text-sm">
-              
+              <span>Sistema Administración- V 1.0</span>
             </p>
           </div>
         </template>
