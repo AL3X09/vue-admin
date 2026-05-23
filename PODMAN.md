@@ -16,12 +16,7 @@ podman pod create \
  podman pod create --name vue-admin-pod --network app-network -p 8000:80
 
 # 4. Ejecutar contenedor
-podman run -d \
-  --name front-vue-admin-app \
-  --network app-network \
-  --restart unless-stopped \
-  -p 80:8001 \
-  vue-admin-frontend:latest
+  podman run -d   --name front-vue-admin-app   --network app-network   --restart unless-stopped   -p 8000:80   vue-admin:latest
 
 ## powershell
  podman run -d --name vue-admin --pod vue-admin-pod vue-admin:latest
