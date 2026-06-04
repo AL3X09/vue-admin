@@ -48,13 +48,18 @@ import BaseButtons from '@/components/BaseButtons.vue'
 import BaseDivider from '@/components/BaseDivider.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import { useNotification } from '@/composables/useNotification'
 import { useParkingSpotsStore } from '@/stores/parkingSpots.store'
 import { useAuthStore } from '@/stores/auth.store'
 
 const parkingSpotsStore = useParkingSpotsStore()
 const authStore = useAuthStore()
+
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError } = useNotification()
 
 // ============================================
 // ESTADO LOCAL - STATE
@@ -63,10 +68,6 @@ const authStore = useAuthStore()
 // Modal de desactivacion
 const showDeactivateModal = ref(false)
 const spotToDeactivate = ref(null)
-
-// Mensajes temporales
-const successMessage = ref('')
-const errorMessage = ref('')
 
 // Estado de procesamiento para evitar doble envio
 const isProcessing = ref(false)
@@ -256,23 +257,6 @@ const resetForm = () => {
 }
 
 /**
- * Muestra un mensaje de exito o error al usuario
- * @param {string} msg - Mensaje a mostrar
- * @param {string} type - Tipo de mensaje ('success' o 'error')
- */
-const showMessage = (msg, type = 'success') => {
-  if (type === 'success') {
-    successMessage.value = msg
-    errorMessage.value = ''
-    setTimeout(() => { successMessage.value = '' }, 4000)
-  } else {
-    errorMessage.value = msg
-    successMessage.value = ''
-    setTimeout(() => { errorMessage.value = '' }, 5000)
-  }
-}
-
-/**
  * GUARDAR SPOT - Crea o actualiza un spot de parqueadero
  * 
  * Proceso:
@@ -283,7 +267,6 @@ const showMessage = (msg, type = 'success') => {
  * 5. Cierra el modal
  */
 const saveSpot = async () => {
-  errorMessage.value = ''
   isProcessing.value = true
   try {
     const parsePrice = (value) => {
@@ -343,16 +326,16 @@ const saveSpot = async () => {
       payload.parking_status = spotForm.value.parking_status
       payload.is_active = spotForm.value.is_active
       await parkingSpotsStore.updateSpot(editingSpotId.value, payload)
-      showMessage('Spot actualizado correctamente')
+      notifySuccess('Spot actualizado correctamente')
     } else {
       await parkingSpotsStore.createSpot(payload)
-      showMessage('Spot creado correctamente')
+      notifySuccess('Spot creado correctamente')
     }
 
     closeFormModal()
   } catch (error) {
     const msg = error?.response?.data?.detail || error?.message || 'Error al guardar spot'
-    showMessage(msg, 'error')
+    notifyError(msg)
   } finally {
     isProcessing.value = false
   }
@@ -384,15 +367,14 @@ const closeDeactivateModal = () => {
  * 3. Cierra el modal
  */
 const confirmDeactivate = async () => {
-  errorMessage.value = ''
   isProcessing.value = true
   try {
     await parkingSpotsStore.deactivateSpot(spotToDeactivate.value.id)
-    showMessage('Spot desactivado correctamente')
+    notifySuccess('Spot desactivado correctamente')
     closeDeactivateModal()
   } catch (error) {
     const msg = error?.response?.data?.detail || error?.message || 'Error al desactivar spot'
-    showMessage(msg, 'error')
+    notifyError(msg)
   } finally {
     isProcessing.value = false
   }
@@ -403,15 +385,14 @@ const confirmDeactivate = async () => {
  * @param {Object} spot - Spot a modificar
  */
 const toggleSpotStatus = async (spot) => {
-  errorMessage.value = ''
   isProcessing.value = true
   const newState = !spot.is_active
   try {
     await parkingSpotsStore.updateSpot(spot.id, { is_active: newState })
-    showMessage(newState ? 'Spot activado correctamente' : 'Spot desactivado correctamente')
+    notifySuccess(newState ? 'Spot activado correctamente' : 'Spot desactivado correctamente')
   } catch (error) {
     const msg = error?.response?.data?.detail || error?.message || 'Error al cambiar estado'
-    showMessage(msg, 'error')
+    notifyError(msg)
   } finally {
     isProcessing.value = false
   }
@@ -598,19 +579,6 @@ const getVehicleTypeLabel = (typeId) => {
              TABLA DE SPOTS
              ======================================== -->
         <CardBox class="mb-6" has-table>
-          <!-- Mensajes de notificacion -->
-          <NotificationBar v-if="successMessage" color="success" :icon="mdiCheckCircle">
-            {{ successMessage }}
-          </NotificationBar>
-          
-          <NotificationBar v-if="errorMessage" color="danger" :icon="mdiAlertCircle">
-            {{ errorMessage }}
-          </NotificationBar>
-          
-          <NotificationBar v-if="parkingSpotsStore.error && !errorMessage" color="danger" :icon="mdiAlertCircle">
-            {{ parkingSpotsStore.error }}
-          </NotificationBar>
-          
           <!-- Tabla de spots -->
           <div v-if="paginatedSpots.length > 0" class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">

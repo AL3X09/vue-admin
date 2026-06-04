@@ -46,8 +46,8 @@ import FormControl from '@/components/FormControl.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import { useNotification } from '@/composables/useNotification'
 import { useParkingAssignmentsStore } from '@/stores/parkingAssignments.store'
 import { useParkingSpotsStore } from '@/stores/parkingSpots.store'
 import { usePersonsStore } from '@/stores/persons.store'
@@ -58,6 +58,11 @@ import { usePersonsStore } from '@/stores/persons.store'
 const parkingAssignmentsStore = useParkingAssignmentsStore()
 const parkingSpotsStore = useParkingSpotsStore()
 const personsStore = usePersonsStore()
+
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError } = useNotification()
 
 // ============================================
 // ESTADO LOCAL
@@ -176,6 +181,32 @@ watch([searchQuery, selectedStatus], () => {
     status: selectedStatus.value,
   })
 })
+
+// ============================================
+// WATCHERS - NOTIFICACIONES AUTOMÁTICAS
+// ============================================
+
+// Monitorear errores del store
+watch(
+  () => parkingAssignmentsStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000)
+      parkingAssignmentsStore.error = null
+    }
+  }
+)
+
+// Monitorear mensajes de éxito del store
+watch(
+  () => parkingAssignmentsStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000)
+      parkingAssignmentsStore.successMessage = null
+    }
+  }
+)
 
 // ============================================
 // FUNCIONES - MODAL DE CREACIÓN
@@ -500,16 +531,6 @@ const getStatusLabel = (status) => {
         <div v-if="parkingAssignmentsStore.loading" class="p-8 text-center">
           <div class="text-gray-500">Cargando asignaciones...</div>
         </div>
-        
-        <!-- Mensaje de error -->
-        <NotificationBar v-else-if="parkingAssignmentsStore.error" color="danger" :icon="mdiAlertCircle">
-          {{ parkingAssignmentsStore.error }}
-        </NotificationBar>
-        
-        <!-- Mensaje de éxito -->
-        <NotificationBar v-else-if="parkingAssignmentsStore.successMessage" color="success" :icon="mdiCheckCircle">
-          {{ parkingAssignmentsStore.successMessage }}
-        </NotificationBar>
         
         <!-- Tabla de asignaciones -->
         <div v-else-if="paginatedAssignments.length > 0" class="overflow-x-auto">

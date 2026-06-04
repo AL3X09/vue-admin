@@ -309,7 +309,7 @@ export const useCasaInteriorLinksStore = defineStore('casaInteriorLinks', {
           Object.entries(params).filter(([, v]) => v !== null && v !== undefined)
         )
 
-        const { data } = await api.get('/casa-interior-links/', { params: cleanParams })
+        const { data } = await api.get('/casa-interior-links', { params: cleanParams })
 
         // Si tu backend responde paginado {results, count, next, previous}, ajusta:
         const list = Array.isArray(data) ? data : (data.results ?? [])
@@ -397,7 +397,7 @@ export const useCasaInteriorLinksStore = defineStore('casaInteriorLinks', {
           torre_interior_id: normalizeId(payload?.torre_interior_id),
         }
 
-        const { data } = await api.post('/casa-interior-links/', body)
+        const { data } = await api.post('/casa-interior-links', body)
 
         // Actualiza caches y lista
         this.byIdCache[data.id] = data

@@ -51,15 +51,18 @@ import BaseButtons from '@/components/BaseButtons.vue'
 import BaseDivider from '@/components/BaseDivider.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import { useNotification } from '@/composables/useNotification'
 import { useTorreInteriorStore } from '@/stores/torreInterior.store'
 
 // ============================================
 // STORES
 // ============================================
 const torresInterioresStore = useTorreInteriorStore()
-
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError } = useNotification()
 // ============================================
 // ESTADO LOCAL
 // ============================================
@@ -127,11 +130,35 @@ onMounted(async () => {
 
 // Aplicar filtros cuando cambien
 watch([searchQuery, selectedStatus], () => {
-  torresInterioresStore.setFilters({
+  torreInteriorStore.setFilters({
     search: searchQuery.value,
     status: selectedStatus.value,
   })
 })
+
+// ============================================
+// WATCHERS - NOTIFICACIONES AUTOMÁTICAS
+// ============================================
+
+watch(
+  () => torreInteriorStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000)
+      torreInteriorStore.error = null
+    }
+  }
+)
+
+watch(
+  () => torreInteriorStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000)
+      torreInteriorStore.successMessage = null
+    }
+  }
+)
 
 // ============================================
 // FUNCIONES - MODAL DE FORMULARIO

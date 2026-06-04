@@ -1,13 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   mdiPlus,
   mdiPencil,
   mdiAccount,
-  mdiEmail,
-  mdiPhone,
-  mdiCardAccountDetails,
   mdiShieldAccount,
   mdiLock,
   mdiCheckCircle,
@@ -23,10 +20,14 @@ import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import NotificationBar from '@/components/NotificationBar.vue'
 import { useUsersStore } from '@/stores/users.store'
+import { useRolesStore } from '@/stores/roles.store'
 
+// ============================================
+// STORES
+// ============================================
 const route = useRoute()
-const router = useRouter()
 const usersStore = useUsersStore()
+const rolesStore = useRolesStore()
 
 const notification = ref({
   message: '',
@@ -51,82 +52,49 @@ const hideNotification = () => {
   notification.value.visible = false
 }
 
-const userForm = ref({
+const initialUserForm = {
   username: '',
-  email: '',
   password: '',
-  first_name: '',
-  last_name: '',
-  role: null,
-  phone: '',
-  document_type: null,
-  document_number: '',
-})
+  role_id: null,
+}
 
-const selectDocumentType = [
-  { id: 'CC', label: 'Cédula de Ciudadanía' },
-  { id: 'TI', label: 'Tarjeta de Identidad' },
-  { id: 'CE', label: 'Cédula de Extranjería' },
-  { id: 'NIT', label: 'NIT' },
-  { id: 'PP', label: 'Pasaporte' },
-]
+const userForm = ref({ ...initialUserForm })
+const originalUserForm = ref({ ...initialUserForm })
 
 const selectRoleOptions = computed(() => {
-  return usersStore.availableRoles.map(role => ({ id: role.id, label: role.name }))
+  return rolesStore.roles.map(role => ({ id: role.id, label: role.name }))
 })
 
+const router = useRouter()
 const isEditing = computed(() => !!route.params.id)
 
 const resetUserForm = () => {
   userForm.value = {
-    username: '',
-    email: '',
+    ...originalUserForm.value,
     password: '',
-    first_name: '',
-    last_name: '',
-    role: null,
-    phone: '',
-    document_type: null,
-    document_number: '',
   }
 }
 
 const loadUser = async () => {
   if (!isEditing.value) {
-    resetUserForm()
     return
   }
 
   const id = Number(route.params.id)
-  if (!id) {
-    await router.replace({ name: 'users' })
-    return
+  const user = await usersStore.fetchUserById(id)
+
+  originalUserForm.value = {
+    username: user.username || '',
+    password: '',
+    role_id: user.role?.id ?? user.role ?? null,
   }
 
-  try {
-    const user = await usersStore.fetchUserById(id)
-
-    userForm.value = {
-      username: user.username || '',
-      email: user.email || '',
-      password: '',
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
-      role: user.role || null,
-      phone: user.phone || '',
-      document_type: user.document_type || null,
-      document_number: user.document_number || '',
-    }
-  } catch (error) {
-    console.error('Error cargando usuario:', error)
-    alert('Error al cargar los datos del usuario. Regresando a la lista.')
-    await router.replace({ name: 'users' })
-  }
+  userForm.value = { ...originalUserForm.value }
 }
 
 const saveUser = async () => {
   try {
-    if (!userForm.value.username || !userForm.value.email || !userForm.value.role) {
+    if (!userForm.value.username || !userForm.value.role_id) {
       showNotification('danger', 'Por favor, completa todos los campos requeridos.')
       return
     }
@@ -138,17 +106,8 @@ const saveUser = async () => {
 
     const payload = {
       username: userForm.value.username,
-      email: userForm.value.email,
-      first_name: userForm.value.first_name,
-      last_name: userForm.value.last_name,
-      role: userForm.value.role,
-      phone: userForm.value.phone,
-      document_type: userForm.value.document_type,
-      document_number: userForm.value.document_number,
-    }
-
-    if (userForm.value.password) {
-      payload.password = userForm.value.password
+      role_id: userForm.value.role_id,
+      ...(userForm.value.password ? { password: userForm.value.password } : {}),
     }
 
     if (isEditing.value) {
@@ -174,13 +133,10 @@ const cancel = () => {
 }
 
 onMounted(async () => {
-  if (!usersStore.users.length) {
-    await usersStore.fetchUsers()
-  }
+  await rolesStore.fetchRoles()
   await loadUser()
 })
 
-watch(() => route.params.id, loadUser)
 </script>
 
 <template>
@@ -210,12 +166,13 @@ watch(() => route.params.id, loadUser)
         </FormField>
 
         <FormField label="Rol del Usuario">
-          <FormControl v-model="userForm.role" :options="selectRoleOptions" :icon="mdiShieldAccount" required />
+          <FormControl v-model="userForm.role_id" :options="selectRoleOptions" :icon="mdiShieldAccount" required />
         </FormField>
 
         <template #footer>
           <BaseButtons>
             <BaseButton type="submit" :label="isEditing ? 'Actualizar' : 'Crear'" color="info" />
+            <BaseButton type="button" label="Limpiar" color="info" outline @click="resetUserForm" />
             <BaseButton type="button" label="Cancelar" color="info" outline @click="cancel" />
           </BaseButtons>
         </template>

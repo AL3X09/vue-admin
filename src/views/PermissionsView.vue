@@ -55,10 +55,10 @@ import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import CardBoxModal from '@/components/CardBoxModal.vue'
 import TableCheckboxCell from '@/components/TableCheckboxCell.vue'
 import FormCheckRadio from '@/components/FormCheckRadio.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
 
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { useAuthStore } from '@/stores/auth.store'
+import { useNotification } from '@/composables/useNotification'
 
 // ============================================
 // INICIALIZACIÓN DE STORES
@@ -66,6 +66,11 @@ import { useAuthStore } from '@/stores/auth.store'
 
 const permissionsStore = usePermissionsStore()
 const authStore = useAuthStore()
+
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError } = useNotification()
 
 // ============================================
 // ESTADO LOCAL DEL COMPONENTE
@@ -112,6 +117,34 @@ onMounted(async () => {
   ])
   console.log('✅ Vista de permisos cargada')
 })
+
+// ============================================
+// WATCHERS - NOTIFICACIONES AUTOMÁTICAS
+// ============================================
+
+import { watch } from 'vue'
+
+// Monitorear errores del store
+watch(
+  () => permissionsStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000)
+      permissionsStore.error = null
+    }
+  }
+)
+
+// Monitorear mensajes de éxito del store
+watch(
+  () => permissionsStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000)
+      permissionsStore.successMessage = null
+    }
+  }
+)
 
 // ============================================
 // COMPUTED PROPERTIES
@@ -455,16 +488,6 @@ const resetAssignForm = () => {
           @click="openAssignModal"
         />
       </SectionTitleLineWithButton>
-
-      <!-- ============================================ -->
-      <!-- MENSAJES DE ERROR Y ÉXITO -->
-      <!-- ============================================ -->
-      <NotificationBar v-if="permissionsStore.error" color="danger" :icon="mdiAlertCircle" class="mb-6">
-        {{ permissionsStore.error }}
-      </NotificationBar>
-      <NotificationBar v-if="permissionsStore.successMessage" color="success" :icon="mdiCheckCircle" class="mb-6">
-        {{ permissionsStore.successMessage }}
-      </NotificationBar>
 
       <!-- ============================================ -->
       <!-- INFORMACIÓN DEL USUARIO ACTUAL -->

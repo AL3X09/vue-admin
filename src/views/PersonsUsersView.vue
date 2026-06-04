@@ -73,7 +73,9 @@ import BaseDivider from '@/components/BaseDivider.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import NotificationBar from '@/components/NotificationBar.vue'
+import NotificationAlert from '@/components/NotificationAlert.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import { useNotification } from '@/composables/useNotification'
 import { usePersonsStore } from '@/stores/persons.store'
 import { useUsersStore } from '@/stores/users.store'
 import { usePropertiesStore } from '@/stores/properties.store'
@@ -90,12 +92,22 @@ const rolesStore = useRolesStore()
 const linksStore = useCasaInteriorLinksStore()
 
 // ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError, notifyWarning } = useNotification()
+
+// ============================================
 // ESTADO LOCAL
 // ============================================
 
 // Modal de confirmación de desactivación
 const showDeactivateModal = ref(false)
 const personToDeactivate = ref(null)
+
+// Estado para notificaciones
+const notificationMessage = ref('')
+const notificationType = ref('info') // 'success', 'error', 'warning', 'info'
+const showNotification = ref(false)
 
 // Modal de creación/edición
 const showFormModal = ref(false)
@@ -295,6 +307,58 @@ watch([() => personForm.value.nombres, () => personForm.value.apellidos], () => 
     }
   }
 })
+
+// ============================================
+// WATCHERS - NOTIFICACIONES AUTOMÁTICAS
+// ============================================
+
+// Monitorear errores del store y mostrar toast automático
+watch(
+  () => personsStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000) // 5 segundos para errores
+      // Limpiar el error del store después de mostrar
+      personsStore.error = null
+    }
+  }
+)
+
+// Monitorear mensajes de éxito del store y mostrar toast automático
+watch(
+  () => personsStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000) // 3 segundos para éxito
+      // Limpiar el mensaje del store después de mostrar
+      personsStore.successMessage = null
+    }
+  }
+)
+
+// Monitorear errores del store de usuarios y mostrar toast automático
+watch(
+  () => usersStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000) // 5 segundos para errores
+      // Limpiar el error del store después de mostrar
+      usersStore.error = null
+    }
+  }
+)
+
+// Monitorear mensajes de éxito del store de usuarios y mostrar toast automático
+watch(
+  () => usersStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000) // 3 segundos para éxito
+      // Limpiar el mensaje del store después de mostrar
+      usersStore.successMessage = null
+    }
+  }
+)
 
 // ============================================
 // FUNCIONES - MODAL DE FORMULARIO
@@ -881,16 +945,6 @@ const changePage = (page) => {
         </div>
         
         <template v-else>
-        <!-- Mensaje de error -->
-        <NotificationBar v-if="personsStore.error" color="danger" :icon="mdiAlertCircle">
-          {{ personsStore.error }}
-        </NotificationBar>
-        
-        <!-- Mensaje de éxito -->
-        <NotificationBar v-if="personsStore.successMessage" color="success" :icon="mdiCheckCircle">
-          {{ personsStore.successMessage }}
-        </NotificationBar>
-        
         <!-- Tabla de personas -->
         <div v-if="paginatedPersons.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">

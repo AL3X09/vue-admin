@@ -39,8 +39,8 @@ import BaseButton from '@/components/BaseButton.vue'
 import BaseButtons from '@/components/BaseButtons.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import { useNotification } from '@/composables/useNotification'
 import { useRolesStore } from '@/stores/roles.store'
 import { usePermissionsStore } from '@/stores/permissions.store'
 
@@ -49,6 +49,11 @@ import { usePermissionsStore } from '@/stores/permissions.store'
 // ============================================
 const rolesStore = useRolesStore()
 const permissionsStore = usePermissionsStore()
+
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError } = useNotification()
 
 // ============================================
 // ESTADO LOCAL
@@ -120,6 +125,32 @@ watch(searchQuery, () => {
     search: searchQuery.value,
   })
 })
+
+// ============================================
+// WATCHERS - NOTIFICACIONES AUTOMÁTICAS
+// ============================================
+
+// Monitorear errores del store
+watch(
+  () => rolesStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000)
+      rolesStore.error = null
+    }
+  }
+)
+
+// Monitorear mensajes de éxito del store
+watch(
+  () => rolesStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000)
+      rolesStore.successMessage = null
+    }
+  }
+)
 
 // ============================================
 // FUNCIONES - MODAL DE FORMULARIO
@@ -324,16 +355,6 @@ const changePage = (page) => {
         </div>
         
         <template v-else>
-        <!-- Mensaje de error -->
-        <NotificationBar v-if="rolesStore.error" color="danger" :icon="mdiAlertCircle">
-          {{ rolesStore.error }}
-        </NotificationBar>
-        
-        <!-- Mensaje de éxito -->
-        <NotificationBar v-if="rolesStore.successMessage" color="success" :icon="mdiCheckCircle">
-          {{ rolesStore.successMessage }}
-        </NotificationBar>
-        
         <!-- Tabla de roles -->
         <div v-if="paginatedRoles.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">

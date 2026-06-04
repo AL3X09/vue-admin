@@ -64,14 +64,18 @@ import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
 import CardBoxModal from '@/components/CardBoxModal.vue'
 import { useUsersStore } from '@/stores/users.store'
 import { usePermissionsStore } from '@/stores/permissions.store'
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import { useNotification } from '@/composables/useNotification'
 
 // ============================================
 // STORES
 // ============================================
 const usersStore = useUsersStore()
 const permissionsStore = usePermissionsStore()
+
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError, notifyWarning, notifyInfo } = useNotification()
 
 // ============================================
 // ESTADO LOCAL
@@ -88,6 +92,11 @@ const showPermissionsModal = ref(false)
 const selectedUserForPermissions = ref(null)
 const selectedPermissions = ref([])
 
+const showPasswordModal = ref(false)
+const passwordUser = ref(null)
+const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordModalError = ref('')
 
 // Filtros
 const searchQuery = ref('')
@@ -342,19 +351,55 @@ const changePage = (page) => {
   usersStore.setPage(page)
 }
 
+const openPasswordModal = (user) => {
+  passwordUser.value = user
+  newPassword.value = ''
+  confirmPassword.value = ''
+  passwordModalError.value = ''
+  showPasswordModal.value = true
+}
+
+const closePasswordModal = () => {
+  showPasswordModal.value = false
+  passwordUser.value = null
+  newPassword.value = ''
+  confirmPassword.value = ''
+  passwordModalError.value = ''
+}
+
+const savePassword = async () => {
+  passwordModalError.value = ''
+
+  if (!newPassword.value) {
+    passwordModalError.value = 'Ingrese la nueva contraseña.'
+    return
+  }
+
+  if (newPassword.value.length < 5) {
+    passwordModalError.value = 'La contraseña debe tener al menos 5 caracteres.'
+    return
+  }
+
+  if (newPassword.value !== confirmPassword.value) {
+    passwordModalError.value = 'Las contraseñas no coinciden.'
+    return
+  }
+
+  try {
+    await usersStore.updateUser(passwordUser.value.id, {
+      password: newPassword.value,
+    })
+    notifySuccess('Contraseña actualizada exitosamente.')
+    closePasswordModal()
+  } catch (error) {
+    console.error('Error al cambiar contraseña:', error)
+    passwordModalError.value = error.response?.data?.detail || 'Error al cambiar la contraseña.'
+  }
+}
+
 const notify = () => {
- toast.info("Oprima aquí si esta Seguro de desactivar el usuario?", {
-  closeButton: false,
-    // Prevent the toast from closing automatically
-    autoClose: false, 
-    // Add custom buttons or logic via a custom component (optional)
-    // or handle specific click events on the toast itself
-    onClick: () => {
-      console.log("Confirmed!");
-      toast.clearAll(); // Manually clear after confirmation
-    }
-  });
-};
+ notifyInfo("Oprima aquí si esta Seguro de desactivar el usuario?", 5000)
+}
 </script>
 
 <template>
@@ -538,10 +583,20 @@ const notify = () => {
                 </td>
                 
                 <!-- Cambio de contraseña -->
-                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span :class="user.last_login" class="text-sm font-medium">
-                    {{ user.must_change_password ? 'Nunca' : 'Cambiada' }}
-                  </span>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-700">
+                      {{ user.must_change_password ? 'Nunca' : 'Cambiada' }}
+                    </span>
+                    <BaseButton
+                      v-if="isAdmin"
+                      :icon="mdiAccountKey"
+                      label="Cambiar"
+                      color="info"
+                      small
+                      @click="openPasswordModal(user)"
+                    />
+                  </div>
                 </td>
                 
                 <!-- Acciones -->
@@ -664,6 +719,42 @@ const notify = () => {
        <!-- ========================================
            MODAL DE CONFIRMACIÓN DE DESACTIVACIÓN
            ======================================== -->
+      <CardBoxModal
+        v-model="showPasswordModal"
+        title="Cambiar contraseña"
+        button="success"
+        buttonLabel="Guardar"
+        :hasCancel="true"
+        :isProcessing="usersStore.isLoading"
+        :isForm="true"
+        @confirm="savePassword"
+        @cancel="closePasswordModal"
+      >
+        <div class="space-y-4">
+          <FormField label="Nueva contraseña" help="Mínimo 8 caracteres">
+            <FormControl
+              v-model="newPassword"
+              type="password"
+              :icon="mdiLock"
+              placeholder="Escribe la nueva contraseña"
+              required
+            />
+          </FormField>
+          <FormField label="Confirmar contraseña" help="Repite la nueva contraseña">
+            <FormControl
+              v-model="confirmPassword"
+              type="password"
+              :icon="mdiLock"
+              placeholder="Confirma la contraseña"
+              required
+            />
+          </FormField>
+          <div v-if="passwordModalError" class="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {{ passwordModalError }}
+          </div>
+        </div>
+      </CardBoxModal>
+
       <CardBoxModal
         v-model="showDeactivateModal"
         title="Desactivar Usuario"

@@ -142,7 +142,7 @@ export const useParkingSpotsStore = defineStore("parkingSpots", {
           if (params[k] === null || params[k] === undefined) delete params[k];
         });
 
-        const { data } = await api.get("/parking/spots/", { params });
+        const { data } = await api.get("/parking/spots", { params });
 
         this.spots = data;
         this.loaded = true;
@@ -192,7 +192,7 @@ export const useParkingSpotsStore = defineStore("parkingSpots", {
         const payloadString = JSON.stringify(processedPayload)
         console.log('🔍 [createSpot] Payload JSON:', payloadString)
         
-        const { data } = await api.post("/parking/spots/", payloadString, {
+        const { data } = await api.post("/parking/spots", payloadString, {
           headers: { 'Content-Type': 'application/json' },
           transformRequest: [(d) => d]
         });

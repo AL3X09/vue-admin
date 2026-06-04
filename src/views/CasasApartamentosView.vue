@@ -55,14 +55,19 @@ import BaseButtons from '@/components/BaseButtons.vue'
 import BaseDivider from '@/components/BaseDivider.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import { useNotification } from '@/composables/useNotification'
 import { useCasasApartamentosStore } from '@/stores/casasApartamentos.store'
 
 // ============================================
 // STORES
 // ============================================
 const casasApartamentosStore = useCasasApartamentosStore()
+
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError } = useNotification()
 
 // ============================================
 // ESTADO LOCAL
@@ -141,7 +146,29 @@ watch([searchQuery, selectedStatus], () => {
     status: selectedStatus.value,
   })
 })
+// ============================================
+// WATCHERS - NOTIFICACIONES AUTOMÁTICAS
+// ============================================
 
+watch(
+  () => casasApartamentosStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000)
+      casasApartamentosStore.error = null
+    }
+  }
+)
+
+watch(
+  () => casasApartamentosStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000)
+      casasApartamentosStore.successMessage = null
+    }
+  }
+)
 // ============================================
 // FUNCIONES - MODAL DE FORMULARIO
 // ============================================
@@ -425,16 +452,6 @@ const changePage = (page) => {
         <div v-if="casasApartamentosStore.isLoading" class="p-8 text-center">
           <div class="text-gray-500">Cargando casas/apartamentos...</div>
         </div>
-        
-        <!-- Mensaje de error -->
-        <NotificationBar v-else-if="casasApartamentosStore.error" color="danger" :icon="mdiAlertCircle">
-          {{ casasApartamentosStore.error }}
-        </NotificationBar>
-        
-        <!-- Mensaje de éxito -->
-        <NotificationBar v-else-if="casasApartamentosStore.successMessage" color="success" :icon="mdiCheckCircle">
-          {{ casasApartamentosStore.successMessage }}
-        </NotificationBar>
         
         <!-- Tabla de casas/apartamentos -->
         <div v-else-if="paginatedCasasApartamentos.length > 0" class="overflow-x-auto">

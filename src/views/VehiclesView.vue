@@ -58,8 +58,8 @@ import BaseButtons from '@/components/BaseButtons.vue'
 import BaseDivider from '@/components/BaseDivider.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
 import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue'
+import { useNotification } from '@/composables/useNotification'
 import { useVehiclesStore } from '@/stores/vehicles.store'
 import { usePersonsStore } from '@/stores/persons.store'
 import { useVehicleTypesStore } from '@/stores/vehicleTypes.store'
@@ -68,6 +68,11 @@ import { useVehicleTypesStore } from '@/stores/vehicleTypes.store'
 // STORES
 // ============================================
 const vehiclesStore = useVehiclesStore()
+
+// ============================================
+// COMPOSABLES
+// ============================================
+const { notifySuccess, notifyError } = useNotification()
 const personsStore = usePersonsStore()
 const vehicleTypesStore = useVehicleTypesStore()
 
@@ -204,6 +209,30 @@ watch([vehicleForm], () => {
     validationErrors.value = {}
   }
 }, { deep: true })
+
+// ============================================
+// WATCHERS - NOTIFICACIONES AUTOMÁTICAS
+// ============================================
+
+watch(
+  () => vehiclesStore.error,
+  (newError) => {
+    if (newError) {
+      notifyError(newError, 5000)
+      vehiclesStore.error = null
+    }
+  }
+)
+
+watch(
+  () => vehiclesStore.successMessage,
+  (newMessage) => {
+    if (newMessage) {
+      notifySuccess(newMessage, 3000)
+      vehiclesStore.successMessage = null
+    }
+  }
+)
 
 // ============================================
 // FUNCIONES - MODAL DE FORMULARIO
@@ -552,16 +581,6 @@ const changePage = (page) => {
         </div>
         
         <template v-else>
-        <!-- Mensaje de error -->
-        <NotificationBar v-if="vehiclesStore.error" color="danger" :icon="mdiAlertCircle">
-          {{ vehiclesStore.error }}
-        </NotificationBar>
-        
-        <!-- Mensaje de éxito -->
-        <NotificationBar v-if="vehiclesStore.successMessage" color="success" :icon="mdiCheckCircle">
-          {{ vehiclesStore.successMessage }}
-        </NotificationBar>
-        
         <!-- Tabla de vehículos -->
         <div v-if="paginatedVehicles.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
