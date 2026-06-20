@@ -54,6 +54,7 @@ export const usePermissionsStore = defineStore('permissions', {
       { id: 'view_reports', name: 'Ver Reportes', description: 'Permite acceder a reportes del sistema' },
       { id: 'manage_lottery', name: 'Gestionar Sorteo', description: 'Permite gestionar el sorteo de parqueaderos' },
       { id: 'manage_visitors', name: 'Gestionar Visitantes', description: 'Permite gestionar parqueaderos de visitantes' },
+      { id: 'manage_domain_configs', name: 'Gestionar Configuraciones de Dominio', description: 'Permite crear, editar y eliminar configuraciones de dominio' },
     ],
     
     // Estado de carga

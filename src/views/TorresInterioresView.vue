@@ -130,7 +130,7 @@ onMounted(async () => {
 
 // Aplicar filtros cuando cambien
 watch([searchQuery, selectedStatus], () => {
-  torreInteriorStore.setFilters({
+  torresInterioresStore.setFilters({
     search: searchQuery.value,
     status: selectedStatus.value,
   })
@@ -141,21 +141,21 @@ watch([searchQuery, selectedStatus], () => {
 // ============================================
 
 watch(
-  () => torreInteriorStore.error,
+  () => torresInterioresStore.error,
   (newError) => {
     if (newError) {
       notifyError(newError, 5000)
-      torreInteriorStore.error = null
+      torresInterioresStore.error = null
     }
   }
 )
 
 watch(
-  () => torreInteriorStore.successMessage,
+  () => torresInterioresStore.successMessage,
   (newMessage) => {
     if (newMessage) {
       notifySuccess(newMessage, 3000)
-      torreInteriorStore.successMessage = null
+      torresInterioresStore.successMessage = null
     }
   }
 )

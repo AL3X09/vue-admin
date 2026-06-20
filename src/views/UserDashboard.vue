@@ -17,6 +17,7 @@ import {
   mdiHomeCity,
   mdiLinkVariant,
   mdiChartBar,
+  mdiDomain,
 } from '@mdi/js'
 
 
@@ -32,14 +33,12 @@ const userName = computed(() => authStore.user?.first_name || authStore.user?.us
  * @param {string} title - Título del menú
  * @returns {string} String de permiso en formato '<modulo>:read'
  */
-const getPermissionFromTitle = (title) => {
+const getPermissionFromTitle = (id) => {
   permissionsStore.getPermissionFromTitle
-  // Convertir a minúsculas y eliminar acentos
-  let permission = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  // Eliminar caracteres que no sean letras o números
+  let permission = id.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   permission = permission.replace(/[^a-z0-9]/g, '')
+console.log('Permiso generado dsd', permission)
 
-  //console.log(`Permiso generado para "${title}": ${permission}:read`)
   return `${permission}:view`
 }
 
@@ -54,7 +53,7 @@ const filteredMenuItems = computed(() => {
   const permissionCodes = userPermissions.map(p => p.code)
   return MenuItems.filter(item => {
     
-    const permission = getPermissionFromTitle(item.title) // Usar title en lugar de id para generar el permiso
+    const permission = getPermissionFromTitle(item.id) // Usar title en lugar de id para generar el permiso
     
     return permissionCodes.includes(permission)
   })
@@ -90,7 +89,7 @@ const MenuItems = [
     bgColor: 'bg-purple-500/10'
   },
   {
-    id: 'reservas',
+    id: 'reservaparqueaderos',
     title: 'Reservas', 
     description: 'Reservas de parqueadero visitantes',
     icon: mdiTicket,
@@ -178,6 +177,15 @@ const MenuItems = [
     route: '/casa-interior-links',
     color: 'text-teal-500',
     bgColor: 'bg-teal-500/10'
+  },
+  { 
+    id: 'domainconfigs',
+    title: 'Configuraciones de Dominio', 
+    description: 'Gestión de configuraciones de dominios',
+    icon: mdiDomain,
+    route: '/domain-configs',
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/10'
   },
 ]
 </script>

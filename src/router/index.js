@@ -148,6 +148,15 @@ const routes = [
   },
   {
     meta: {
+      title: 'Gestión de Configuraciones de Dominio',
+      requiresAuth: true,
+    },
+    path: '/domain-configs',
+    name: 'domain-configs',
+    component: () => import('@/views/DomainConfigView.vue'),
+  },
+  {
+    meta: {
       title: 'Crear Usuario',
       requiresAuth: true,
     },

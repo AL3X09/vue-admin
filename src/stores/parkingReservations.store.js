@@ -224,7 +224,7 @@ export const useParkingReservationsStore = defineStore("parkingReservations", {
       this.error = null;
 
       try {
-        const { data } = await api.post("/parking/reservations/", payload);
+        const { data } = await api.post("/parking/reservations", payload);
 
         // Añade la nueva reserva al inicio de la lista
         this.reservations = [data, ...this.reservations];

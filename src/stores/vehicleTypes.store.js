@@ -21,13 +21,13 @@
  * - is_active: Si el tipo está activo
  * 
  * ENDPOINTS DEL BACKEND:
- * - GET /parking/vehicle-types - Listar todos los tipos
- * - GET /parking/vehicle-types/active - Listar solo activos
- * - GET /parking/vehicle-types/:id - Obtener un tipo por ID
- * - POST /parking/vehicle-types - Crear nuevo tipo
- * - PATCH /parking/vehicle-types/:id - Actualizar tipo
- * - POST /parking/vehicle-types/:id/toggle - Activar/Desactivar tipo
- * - DELETE /parking/vehicle-types/:id - Desactivar tipo (soft-delete)
+ * - GET /vehicle-types - Listar todos los tipos
+ * - GET /vehicle-types/active - Listar solo activos
+ * - GET /vehicle-types/:id - Obtener un tipo por ID
+ * - POST /vehicle-types - Crear nuevo tipo
+ * - PATCH /vehicle-types/:id - Actualizar tipo
+ * - POST /vehicle-types/:id/toggle - Activar/Desactivar tipo
+ * - DELETE /vehicle-types/:id - Desactivar tipo (soft-delete)
  * 
  * PERMISOS REQUERIDOS:
  * - parking:read - Para listar y ver tipos de vehículos
@@ -94,7 +94,7 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
         ...vt,
         statusText: vt.is_active ? 'Activo' : 'Inactivo',
         statusClass: vt.is_active ? 'text-emerald-500' : 'text-red-500',
-        displayName: vt.emoji ? `${vt.emoji} ${vt.name}` : vt.name,
+        //displayName: vt.emoji ? `${vt.name}` : vt.name,
       }))
     },
 
@@ -105,7 +105,6 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
     filteredVehicleTypes: (state) => {
       let filtered = [...state.vehicleTypes]
       
-      // Filtrar por búsqueda
       if (state.filters.search) {
         const searchLower = state.filters.search.toLowerCase()
         filtered = filtered.filter(vt => 
@@ -115,15 +114,18 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
         )
       }
       
-      // Filtrar por estado activo (si no se incluyen inactivos)
       if (!state.filters.includeInactive) {
         filtered = filtered.filter(vt => vt.is_active === true)
       }
       
-      // Ordenar por display_order
       filtered.sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
       
-      return filtered
+      return filtered.map(vt => ({
+        ...vt,
+        statusText: vt.is_active ? 'Activo' : 'Inactivo',
+        statusClass: vt.is_active ? 'text-emerald-500' : 'text-red-500',
+        displayName: vt.emoji ? `${vt.emoji} ${vt.name}` : vt.name,
+      }))
     },
 
     /**
@@ -134,6 +136,12 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
       return state.vehicleTypes
         .filter(vt => vt.is_active)
         .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+        .map(vt => ({
+          ...vt,
+          statusText: vt.is_active ? 'Activo' : 'Inactivo',
+          statusClass: vt.is_active ? 'text-emerald-500' : 'text-red-500',
+          displayName: vt.emoji ? `${vt.emoji} ${vt.name}` : vt.name,
+        }))
     },
 
     /**
@@ -200,7 +208,7 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
           params.search = this.filters.search
         }
         
-        const response = await api.get('/parking/vehicle-types', { params })
+        const response = await api.get('/vehicle-types', { params })
         this.vehicleTypes = response.data
         this.pagination.total = this.vehicleTypes.length
         console.log('✅ Tipos de vehículos cargados:', this.vehicleTypes.length)
@@ -228,7 +236,7 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
       this.error = null
 
       try {
-        const response = await api.get('/parking/vehicle-types/active')
+        const response = await api.get('/vehicle-types/active')
         // Combinar con los existentes o reemplazar
         const activeTypes = response.data
         // Actualizar el estado solo con activos
@@ -271,7 +279,7 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
       this.successMessage = null
 
       try {
-        const response = await api.post('/parking/vehicle-types', vehicleTypeData)
+        const response = await api.post('/vehicle-types', vehicleTypeData)
         const newVehicleType = response.data
         
         this.vehicleTypes.push(newVehicleType)
@@ -311,7 +319,7 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
       this.successMessage = null
 
       try {
-        const response = await api.patch(`/parking/vehicle-types/${vehicleTypeId}`, vehicleTypeData)
+        const response = await api.patch(`/vehicle-types/${vehicleTypeId}`, vehicleTypeData)
         const updatedVehicleType = response.data
         
         const index = this.vehicleTypes.findIndex(vt => vt.id === vehicleTypeId)
@@ -358,7 +366,7 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
         // Toggle: si está activo, Désactivar; si está inactivo, Activar
         const newStatus = !vehicleType.is_active
         
-        const response = await api.post(`/parking/vehicle-types/${vehicleTypeId}/toggle`, {
+        const response = await api.post(`/vehicle-types/${vehicleTypeId}/toggle`, {
           is_active: newStatus
         })
         const updatedVehicleType = response.data
@@ -404,7 +412,7 @@ export const useVehicleTypesStore = defineStore('vehicleTypes', {
       this.successMessage = null
 
       try {
-        await api.delete(`/parking/vehicle-types/${vehicleTypeId}`)
+        await api.delete(`/vehicle-types/${vehicleTypeId}`)
         
         // Actualizar el estado local
         const index = this.vehicleTypes.findIndex(vt => vt.id === vehicleTypeId)

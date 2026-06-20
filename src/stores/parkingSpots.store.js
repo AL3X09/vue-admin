@@ -68,8 +68,8 @@ export const useParkingSpotsStore = defineStore("parkingSpots", {
         }
       }
       
-      console.log('🔍 [parkingSpots store] isAdmin check - currentUser:', currentUser)
-      console.log('🔍 [parkingSpots store] isAdmin check - user role:', currentUser?.role)
+      //console.log('🔍 [parkingSpots store] isAdmin check - currentUser:', currentUser)
+      //console.log('🔍 [parkingSpots store] isAdmin check - user role:', currentUser?.role)
       
       if (!currentUser) return false
       
@@ -81,11 +81,11 @@ export const useParkingSpotsStore = defineStore("parkingSpots", {
         console.log('🔍 [parkingSpots store] Role como objeto - id:', userRole.id, 'name:', userRole.name, 'idCheck:', idCheck, 'nameCheck:', nameCheck)
         return idCheck || nameCheck
       } else if (typeof userRole === 'string') {
-        console.log('🔍 [parkingSpots store] Role como string:', userRole)
+        //console.log('🔍 [parkingSpots store] Role como string:', userRole)
         return userRole.toLowerCase() === 'superadmin'
       }
       
-      console.log('🔍 [parkingSpots store] returning false - no match')
+      //console.log('🔍 [parkingSpots store] returning false - no match')
       return false
     },
     byId: (state) => (id) => state.spots.find(s => s.id === id),
@@ -106,13 +106,13 @@ export const useParkingSpotsStore = defineStore("parkingSpots", {
     },
 
     /**
-     * GET /parking/vehicle-types/active
+     * GET /vehicle-types/active
      * Obtiene solo los tipos de vehiculos activos
      */
     async fetchVehicleTypes() {
       this.error = null;
       try {
-        const { data } = await api.get("/parking/vehicle-types/active");
+        const { data } = await api.get("/vehicle-types/active");
         this.vehicleTypes = data;
         return data;
       } catch (err) {
@@ -190,7 +190,7 @@ export const useParkingSpotsStore = defineStore("parkingSpots", {
         }
         
         const payloadString = JSON.stringify(processedPayload)
-        console.log('🔍 [createSpot] Payload JSON:', payloadString)
+        //console.log('🔍 [createSpot] Payload JSON:', payloadString)
         
         const { data } = await api.post("/parking/spots", payloadString, {
           headers: { 'Content-Type': 'application/json' },
@@ -239,7 +239,7 @@ export const useParkingSpotsStore = defineStore("parkingSpots", {
         }
         
         const payloadString = JSON.stringify(processedPayload)
-        console.log('🔍 [updateSpot] Payload JSON:', payloadString)
+        //console.log('🔍 [updateSpot] Payload JSON:', payloadString)
         
         const { data } = await api.patch(`/parking/spots/${spotId}`, payloadString, {
           headers: { 'Content-Type': 'application/json' },

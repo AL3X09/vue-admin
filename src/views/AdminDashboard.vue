@@ -16,6 +16,7 @@ import {
   mdiHomeCity,
   mdiLinkVariant,
   mdiChartBar,
+  mdiDomain,
 } from '@mdi/js'
 
 
@@ -132,6 +133,14 @@ const adminMenuItems = [
     route: '/casa-interior-links',
     color: 'text-teal-500',
     bgColor: 'bg-teal-500/10'
+  },
+  { 
+    title: 'Configuraciones de Dominio', 
+    description: 'Gestión de configuraciones de dominios del sistema',
+    icon: mdiDomain,
+    route: '/domain-configs',
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/10'
   },
 ]
 </script>

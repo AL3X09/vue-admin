@@ -525,16 +525,13 @@ const changePage = (page) => {
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Código
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nombre
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Descripción
+                  Emoji
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Orden
+                  Descripción
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Estado
@@ -549,7 +546,7 @@ const changePage = (page) => {
                 <!-- Código -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-mono font-medium text-gray-900">
-                    {{ vehicleType.code }}
+                    {{ vehicleType.name }}
                   </div>
                 </td>
                 
@@ -557,7 +554,6 @@ const changePage = (page) => {
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <span v-if="vehicleType.emoji" class="text-lg">{{ vehicleType.emoji }}</span>
-                    <span class="text-sm text-gray-900">{{ vehicleType.name }}</span>
                   </div>
                 </td>
                 
@@ -567,14 +563,7 @@ const changePage = (page) => {
                     {{ vehicleType.description || 'Sin descripción' }}
                   </div>
                 </td>
-                
-                <!-- Orden -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-500">
-                    {{ vehicleType.display_order }}
-                  </div>
-                </td>
-                
+                                
                 <!-- Estado -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="vehicleType.statusClass" class="text-sm font-medium">
