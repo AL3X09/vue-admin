@@ -277,6 +277,17 @@ const routes = [
     component: () => import('@/views/ErrorView.vue'),
   },
 
+  // Página pública para mostrar el resultado del escaneo de QR
+  {
+    meta: {
+      title: 'Respuesta Escaner',
+      isPublic: true,
+    },
+    path: '/escaneo/respuesta/:id/scan',
+    name: 'park-scan',
+    component: () => import('@/views/ResponseScanView.vue'),
+  },
+
   // ========================================
   // RUTA 404 - NO ENCONTRADA
   // ========================================

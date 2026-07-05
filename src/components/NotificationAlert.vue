@@ -14,7 +14,7 @@ import BaseButton from '@/components/BaseButton.vue'
  * - Cierre manual con botón
  * 
  * PROPS:
- * - type: 'success' | 'error' | 'warning' | 'info' (default: 'info')
+ * - type: 'success' | 'error' | 'warning' | 'info' (default: 'info') 
  * - message: Texto del mensaje
  * - autoClose: Tiempo en ms para auto-cerrar (0 = no cerrar, default: 3000)
  * - dismissible: Si se puede cerrar manualmente (default: true)
@@ -149,7 +149,7 @@ if (autoCloseTimer) {
 
       <!-- Contenido -->
       <div class="flex-1">
-        <p class="text-sm font-medium">{{ message }}</p>
+        <p class="text-sm font-extrabold">{{ message }}</p>
       </div>
 
       <!-- Botón cerrar -->
